@@ -32,7 +32,7 @@ import { CenterModule } from './center/center.module';
         // cli: {
         //   migrationsDir: 'src/migration',
         // },
-        synchronize: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
