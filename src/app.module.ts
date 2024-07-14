@@ -15,7 +15,7 @@ import { CenterModule } from './center/center.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`, // Load environment-specific file
+      // envFilePath: `.env.${process.env.NODE_ENV || 'development'}`, // Load environment-specific file
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
