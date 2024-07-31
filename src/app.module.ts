@@ -10,12 +10,13 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubjectModule } from './subject/subject.module';
 import { CenterModule } from './center/center.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // envFilePath: `.env.${process.env.NODE_ENV || 'development'}`, // Load environment-specific file
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`, // Load environment-specific file
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -42,6 +43,7 @@ import { CenterModule } from './center/center.module';
     StudentModule,
     SubjectModule,
     CenterModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

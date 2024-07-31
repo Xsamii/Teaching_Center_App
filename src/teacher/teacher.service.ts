@@ -78,8 +78,12 @@ export class TeacherService extends BaseService<Teacher> {
     return center.teachers;
   }
 
-  async findAll(): Promise<Teacher[]> {
-    return this.teacherRepository.find({ relations: ['center'] });
+  async findAll() {
+    const teachers = await this.teacherRepository.find({
+      relations: ['center', 'subject'],
+    });
+    const resp = teachers.map((t) => ({ ...t, subjectName: t.subject.name }));
+    return resp;
   }
   async addStudentToTeacher(teacherId: any, studentId: any): Promise<void> {
     const teacher = await this.teacherRepository.findOne({

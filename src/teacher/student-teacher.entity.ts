@@ -1,26 +1,18 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  Column,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 import { Student } from '../student/student.entity';
-import { Teacher } from './teacher.entity';
+import { Teacher } from '../teacher/teacher.entity';
 
 @Entity()
 export class StudentTeacher {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Student)
-  @JoinColumn({ name: 'studentId' })
+  @ManyToOne(() => Student, (student) => student.studentTeachers)
   student: Student;
 
-  @ManyToOne(() => Teacher)
-  @JoinColumn({ name: 'teacherId' })
+  @ManyToOne(() => Teacher, (teacher) => teacher.studentTeachers)
   teacher: Teacher;
 
-  @Column({ type: 'decimal', nullable: true })
-  customPrice: number;
+  @Column({ nullable: true })
+  customPrice?: number;
 }

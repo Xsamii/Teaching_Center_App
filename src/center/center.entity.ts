@@ -16,6 +16,9 @@ export class Center {
   @OneToMany(() => Teacher, (teacher) => teacher.center)
   teachers: Teacher[];
 
+  @Column()
+  phoneNum: number;
+
   //   @OneToMany(() => Session, (session) => session.center)
   //   sessions: Session[];
 

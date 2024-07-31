@@ -112,4 +112,10 @@ export class StudentService extends BaseService<Student> {
     }
     return center.students;
   }
+  // async findRecentStudents(limit: number = 100): Promise<Student[]> {
+  //   return this.studentRepository.find({
+  //     order: { createdAt: 'DESC' },
+  //     take: limit,
+  //   });
+  // }
 }

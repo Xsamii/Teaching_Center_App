@@ -1,13 +1,22 @@
-import { IsNotEmpty, IsNumber, IsDateString, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsDateString,
+  IsString,
+  // IsOptional,
+} from 'class-validator';
 
 export class CreateSessionDto {
   @IsNotEmpty()
   @IsNumber()
   teacherId: number;
 
-  // @IsNotEmpty()
+  // @IsOptional()
   // @IsString()
   // subject: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
   @IsNotEmpty()
   @IsDateString()

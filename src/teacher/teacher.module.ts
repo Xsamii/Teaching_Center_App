@@ -8,6 +8,7 @@ import { Subject } from 'rxjs';
 import { SubjectModule } from 'src/subject/subject.module';
 import { Student } from 'src/student/student.entity';
 import { StudentTeacher } from './student-teacher.entity';
+import { Subscription } from 'src/subscription/subscription.entity';
 // import { CenterModule } from 'src/center/center.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { StudentTeacher } from './student-teacher.entity';
       Subject,
       Student,
       StudentTeacher,
+      Subscription,
     ]),
     SubjectModule,
   ],

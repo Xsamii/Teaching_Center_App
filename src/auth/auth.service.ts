@@ -65,6 +65,9 @@ export class AuthService {
   async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
     const { username, password } = loginUserDto;
     const user = await this.validateUser(username, password);
+    // const center = await this.centerRepository.findOne({
+    //   where: { id: user.center.id },
+    // });
 
     const payload = {
       username: user.username,

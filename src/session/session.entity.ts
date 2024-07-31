@@ -13,12 +13,13 @@ import { Student } from '../student/student.entity';
 export class Session {
   @PrimaryGeneratedColumn()
   id: number;
-
+  @Column()
+  name: string;
   @ManyToOne(() => Teacher, (teacher) => teacher.sessions)
   teacher: Teacher;
 
-  // @Column()
-  // subject: string;
+  @Column()
+  subject: string;
 
   @Column()
   date: Date;

@@ -43,6 +43,10 @@ export class StudentController {
     return this.studentService.searchStudent(id, phoneNumber);
   }
 
+  // @Get('recent')
+  // findRecentStudents(@Query('limit') limit: number = 100): Promise<Student[]> {
+  //   return this.studentService.findRecentStudents(limit);
+  // }
   @Get(':id')
   getStudentById(@Param('id') id: any): Promise<Student> {
     return this.studentService.findOne(id);

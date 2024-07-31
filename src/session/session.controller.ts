@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Get,
+  Query,
+  NotFoundException,
+} from '@nestjs/common';
 import { SessionService } from './session.service';
 import { Session } from './session.entity';
 import { CreateSessionDto } from '../session/create-session.dto';
@@ -8,6 +16,12 @@ import { StudentSessions } from '../student_sessions/student_sessions.entity';
 @Controller('sessions')
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
+
+  @Get('date')
+  findByDate(@Query('date') date: string): Promise<Session[]> {
+    console.log('hereee');
+    return this.sessionService.findByDate(date);
+  }
 
   @Get()
   async getAllSessions(): Promise<Session[]> {
@@ -39,6 +53,10 @@ export class SessionController {
   ): Promise<StudentSessions> {
     return await this.sessionService.enrollStudent(enrollStudentDto);
   }
+  @Get(':sessionId/report')
+  async getSessionReport(@Param('sessionId') sessionId: number) {
+    return this.sessionService.generateSessionReport(sessionId);
+  }
 
   // @Patch(':sessionId/attendance/:studentId')
   // async markAttendance(
@@ -47,4 +65,19 @@ export class SessionController {
   // ): Promise<StudentSessions> {
   //   return await this.sessionService.markAttendance(sessionId, studentId);
   // }
+  @Get('student-session')
+  async findStudentSession(
+    @Query('sessionId') sessionId: number,
+    @Query('studentId') studentId?: number,
+    @Query('phoneNumber') phoneNumber?: string,
+  ): Promise<StudentSessions> {
+    if (!studentId && !phoneNumber) {
+      throw new NotFoundException('Student ID or phone number is required');
+    }
+    return this.sessionService.findStudentSession(
+      sessionId,
+      studentId,
+      phoneNumber,
+    );
+  }
 }
