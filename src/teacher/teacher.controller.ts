@@ -31,6 +31,8 @@ export class TeacherController {
 
   @Get(':id')
   async findOne(@Param('id') id: any): Promise<Teacher> {
+    // console.log(id);
+
     return await this.teacherService.findOne(id);
   }
 

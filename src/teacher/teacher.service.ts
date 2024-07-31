@@ -132,10 +132,12 @@ export class TeacherService extends BaseService<Teacher> {
     return this.studentTeacherRepository.save(studentTeacher);
   }
   async findOne(id: any): Promise<Teacher> {
+    console.log('id', id);
     const teacher = await this.teacherRepository.findOne({
       where: { id: id },
       relations: ['students'],
     });
+    console.log('techer', teacher);
     return teacher;
   }
 }

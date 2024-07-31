@@ -85,6 +85,7 @@ export class StudentService extends BaseService<Student> {
   }
 
   async searchStudent(id?: any, phoneNumber?: string): Promise<Student> {
+    // console.log(id, phoneNumber);
     let student: Student | undefined;
     if (id) {
       student = await this.studentRepository.findOne({ where: { id } });
@@ -99,6 +100,7 @@ export class StudentService extends BaseService<Student> {
         'Student not found with the provided identifier.',
       );
     }
+    // console.log('student', student);
     return student;
   }
 
