@@ -36,12 +36,15 @@ export class SessionService {
       relations: [
         'students',
         'students.subscriptions',
+        'students.subscriptions.teacher',
         'students.studentTeachers',
+        'students.studentTeachers.teacher',
       ],
     });
     if (!teacher) {
       throw new NotFoundException(`Teacher with ID ${teacherId} not found`);
     }
+    // console.log('session', teacher);
 
     const sessionDate = new Date(date);
 
@@ -68,17 +71,22 @@ export class SessionService {
           sub.startDate <= sessionDate &&
           sub.endDate >= sessionDate,
       );
+      console.log('subs', subscription);
 
       if (subscription) {
         studentPrice = 0; // No charge if subscribed
       } else {
         // Check if the student has a custom price with the teacher
-        const studentTeacher = student.studentTeachers.find(
-          (st) => st.teacher.id === teacher.id,
-        );
-
-        if (studentTeacher && studentTeacher.customPrice) {
-          studentPrice = studentTeacher.customPrice;
+        if (student.studentTeachers.length > 0) {
+          console.log('iam here');
+          const studentTeacher = student.studentTeachers.find(
+            (st) => st.teacher.id === teacher.id,
+          );
+          console.log('st', studentTeacher);
+          if (studentTeacher && studentTeacher.customPrice) {
+            studentPrice = studentTeacher.customPrice;
+          }
+          console.log('price', studentPrice);
         }
       }
 
@@ -89,6 +97,7 @@ export class SessionService {
       });
 
       await this.studentSessionsRepository.save(studentSession);
+      // console.log('stuuuuuuuuuuuuuuu', studentSession);
     }
 
     return session;
@@ -203,9 +212,12 @@ export class SessionService {
       })),
     };
   }
-  async generateSessionReport(
-    sessionId: number,
-  ): Promise<{ totalAttended: number; totalRevenue: number }> {
+  async generateSessionReport(sessionId: number): Promise<{
+    totalAttended: number;
+    totalRevenue: number;
+    totalSubs: number;
+    totalCustom: number;
+  }> {
     const session = await this.sessionRepository.findOne({
       where: { id: sessionId },
       relations: ['teacher'],
@@ -222,15 +234,24 @@ export class SessionService {
 
     let totalAttended = 0;
     let totalRevenue = 0;
+    let totalSubs = 0;
+    let totalCustom = 0;
 
     for (const studentSession of studentSessions) {
       if (studentSession.attended) {
         totalAttended++;
-        totalRevenue += studentSession.customPrice || 0;
+        console.log(studentSession.customPrice);
+        if (studentSession.customPrice == 0) {
+          totalSubs++;
+        } else if (+studentSession.customPrice < +session.price) {
+          totalCustom++;
+        }
+        totalRevenue += +studentSession.customPrice || 0;
       }
     }
+    console.log(totalRevenue);
 
-    return { totalAttended, totalRevenue };
+    return { totalAttended, totalRevenue, totalSubs, totalCustom };
   }
   async findStudentSession(
     sessionId: number,
