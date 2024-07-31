@@ -33,7 +33,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
         // cli: {
         //   migrationsDir: 'src/migration',
         // },
-        synchronize: true,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
