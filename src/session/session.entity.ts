@@ -18,8 +18,8 @@ export class Session {
   @ManyToOne(() => Teacher, (teacher) => teacher.sessions)
   teacher: Teacher;
 
-  @Column()
-  subject: string;
+  // @Column({ nullable: true })
+  // subject: string;
 
   @Column()
   date: Date;
