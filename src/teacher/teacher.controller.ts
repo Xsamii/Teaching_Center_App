@@ -31,8 +31,6 @@ export class TeacherController {
 
   @Get(':id')
   async findOne(@Param('id') id: any): Promise<Teacher> {
-    // console.log(id);
-
     return await this.teacherService.findOne(id);
   }
 
@@ -63,6 +61,7 @@ export class TeacherController {
     console.log('ima here');
     return this.teacherService.findTeachersByCenter(centerId);
   }
+
   @Post(':teacherId/add-student')
   async addStudentToTeacher(
     @Param('teacherId') teacherId: number,
@@ -73,10 +72,19 @@ export class TeacherController {
       addStudentDto.studentId,
     );
   }
+
   @Post('add-custom-price')
   async addCustomPrice(
     @Body() createStudentTeacherDto: CreateStudentTeacherDto,
   ): Promise<StudentTeacher> {
     return this.teacherService.addCustomPrice(createStudentTeacherDto);
+  }
+
+  @Delete(':teacherId/remove-student/:studentId')
+  async removeStudentFromTeacher(
+    @Param('teacherId') teacherId: number,
+    @Param('studentId') studentId: number,
+  ): Promise<void> {
+    return this.teacherService.removeStudentFromTeacher(teacherId, studentId);
   }
 }

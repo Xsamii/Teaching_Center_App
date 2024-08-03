@@ -6,6 +6,7 @@ import {
   Get,
   Query,
   NotFoundException,
+  Delete,
 } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { Session } from './session.entity';
@@ -19,7 +20,6 @@ export class SessionController {
 
   @Get('date')
   findByDate(@Query('date') date: string): Promise<Session[]> {
-    console.log('hereee');
     return this.sessionService.findByDate(date);
   }
 
@@ -32,6 +32,7 @@ export class SessionController {
   async getSessionStudents(@Param('sessionId') sessionId: number) {
     return this.sessionService.getSessionStudents(sessionId);
   }
+
   @Post(':sessionId/students/:studentId/attendance')
   async markAttendance(
     @Param('sessionId') sessionId: number,
@@ -53,24 +54,32 @@ export class SessionController {
   ): Promise<StudentSessions> {
     return await this.sessionService.enrollStudent(enrollStudentDto);
   }
+
   @Get(':sessionId/report')
   async getSessionReport(@Param('sessionId') sessionId: number) {
     return this.sessionService.generateSessionReport(sessionId);
   }
 
-  // @Patch(':sessionId/attendance/:studentId')
-  // async markAttendance(
-  //   @Param('sessionId') sessionId: number,
-  //   @Param('studentId') studentId: number,
-  // ): Promise<StudentSessions> {
-  //   return await this.sessionService.markAttendance(sessionId, studentId);
-  // }
+  @Get('daily-report')
+  async getDailyReport(@Query('date') date: string) {
+    return this.sessionService.getDailyReport(date);
+  }
+
+  @Get('monthly-report')
+  async getMonthlyReport(
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.sessionService.getMonthlyReport(year, month);
+  }
+
   @Get('student-session')
   async findStudentSession(
     @Query('sessionId') sessionId: number,
     @Query('studentId') studentId?: number,
     @Query('phoneNumber') phoneNumber?: string,
   ): Promise<StudentSessions> {
+    console.log('iam here');
     if (!studentId && !phoneNumber) {
       throw new NotFoundException('Student ID or phone number is required');
     }
@@ -79,5 +88,18 @@ export class SessionController {
       studentId,
       phoneNumber,
     );
+  }
+
+  @Delete(':id/student/:studId')
+  async removeStudentFromSession(
+    @Param('id') id: number,
+    @Param('studId') studId: number,
+  ) {
+    return this.sessionService.unenrollStudent(id, studId);
+  }
+
+  @Delete(':id')
+  async deleteSession(@Param('id') id: number) {
+    return this.sessionService.deleteSession(id);
   }
 }

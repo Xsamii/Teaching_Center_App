@@ -285,4 +285,119 @@ export class SessionService {
 
     return studentSession;
   }
+  async unenrollStudent(sessionId: number, studentId: number): Promise<void> {
+    const studentSession = await this.studentSessionsRepository.findOne({
+      where: { session: { id: sessionId }, student: { id: studentId } },
+    });
+
+    if (!studentSession) {
+      throw new NotFoundException(`Student session record not found`);
+    }
+
+    await this.studentSessionsRepository.remove(studentSession);
+  }
+  async deleteSession(sessionId: number): Promise<void> {
+    // console.log(sessionId);
+    // Find the session by ID
+    const session = await this.sessionRepository.findOne({
+      where: { id: sessionId },
+    });
+
+    if (!session) {
+      throw new NotFoundException(`Session with ID ${sessionId} not found`);
+    }
+
+    // Optionally, remove all related student sessions if they are being tracked in a separate table
+    await this.studentSessionsRepository.delete({ session: { id: sessionId } });
+    // console.log(session);
+    // Remove the session itself
+    await this.sessionRepository.delete({ id: session.id });
+  }
+  async getDailyReport(date: string): Promise<{
+    totalRevenue: number;
+    totalSessions: number;
+    sessions: any[];
+  }> {
+    const startDate = new Date(date);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(date);
+    endDate.setHours(23, 59, 59, 999);
+
+    const sessions = await this.sessionRepository.find({
+      where: {
+        date: Between(startDate, endDate),
+      },
+      relations: ['teacher'],
+    });
+
+    let totalRevenue = 0;
+    const sessionDetails = await Promise.all(
+      sessions.map(async (session) => {
+        const sessionReport = await this.generateSessionReport(session.id);
+
+        totalRevenue += sessionReport.totalRevenue;
+
+        return {
+          id: session.id,
+          name: session.name,
+          date: session.date,
+          time: session.time,
+          teacher: session.teacher.name,
+          totalStudents: sessionReport.totalAttended,
+          sessionRevenue: sessionReport.totalRevenue,
+        };
+      }),
+    );
+
+    return {
+      totalRevenue,
+      totalSessions: sessions.length,
+      sessions: sessionDetails,
+    };
+  }
+
+  async getMonthlyReport(
+    year: number,
+    month: number,
+  ): Promise<{
+    totalRevenue: number;
+    totalSessions: number;
+    sessions: any[];
+  }> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+
+    const sessions = await this.sessionRepository.find({
+      where: {
+        date: Between(startDate, endDate),
+      },
+      relations: ['teacher'],
+    });
+
+    let totalRevenue = 0;
+    const sessionDetails = await Promise.all(
+      sessions.map(async (session) => {
+        const sessionReport = await this.generateSessionReport(session.id);
+
+        totalRevenue += sessionReport.totalRevenue;
+
+        return {
+          id: session.id,
+          name: session.name,
+          date: session.date,
+          time: session.time,
+          teacher: session.teacher.name,
+          totalStudents: sessionReport.totalAttended,
+          sessionRevenue: sessionReport.totalRevenue,
+        };
+      }),
+    );
+
+    return {
+      totalRevenue,
+      totalSessions: sessions.length,
+      sessions: sessionDetails,
+    };
+  }
 }

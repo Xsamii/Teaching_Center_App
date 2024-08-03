@@ -34,7 +34,6 @@ export class StudentController {
     @Query('id') id?: any,
     @Query('phoneNumber') phoneNumber?: string,
   ) {
-    console.log('iam here');
     if (!id && !phoneNumber) {
       throw new NotFoundException(
         'Must provide either an id or phoneNumber to search',

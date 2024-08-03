@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { BaseService } from '../common/Base.service';
 import { Teacher } from './teacher.entity';
 import { Center } from 'src/center/center.entity';
@@ -23,6 +23,7 @@ export class TeacherService extends BaseService<Teacher> {
     @InjectRepository(StudentTeacher)
     private readonly studentTeacherRepository: Repository<StudentTeacher>,
     private readonly subjectRepository: SubjectService,
+    private readonly entityManager: EntityManager,
   ) {
     super(teacherRepository);
   }
@@ -137,7 +138,29 @@ export class TeacherService extends BaseService<Teacher> {
       where: { id: id },
       relations: ['students'],
     });
-    console.log('techer', teacher);
+    // console.log('techer', teacher);
     return teacher;
+  }
+  async removeStudentFromTeacher(
+    teacherId: number,
+    studentId: number,
+  ): Promise<void> {
+    // Check if the relationship exists
+    const relationship = await this.entityManager.query(
+      'SELECT * FROM teacher_students_student WHERE teacherId = ? AND studentId = ?',
+      [teacherId, studentId],
+    );
+
+    if (relationship.length === 0) {
+      throw new NotFoundException(
+        `Relationship between Teacher ID ${teacherId} and Student ID ${studentId} not found`,
+      );
+    }
+
+    // Execute the SQL query to delete the relationship
+    await this.entityManager.query(
+      'DELETE FROM teacher_students_student WHERE teacherId = ? AND studentId = ?',
+      [teacherId, studentId],
+    );
   }
 }

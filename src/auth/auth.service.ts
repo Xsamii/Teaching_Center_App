@@ -23,7 +23,7 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const { username, password, centerId } = createUserDto;
+    const { username, password, centerId, role } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const center = await this.centerRepository.findOne({
@@ -36,7 +36,7 @@ export class AuthService {
     const user = this.userRepository.create({
       username,
       password: hashedPassword,
-      role: UserRole.USER,
+      role: role ? UserRole.ADMIN : UserRole.USER,
       center,
     });
 
