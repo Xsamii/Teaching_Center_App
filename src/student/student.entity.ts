@@ -45,6 +45,12 @@ export class Student {
   })
   studyYear: StudyYear;
 
+  @Column()
+  gender: string;
+
+  @Column({ default: null, nullable: true })
+  subSection: string;
+
   @Column({ default: false })
   printed: boolean;
 

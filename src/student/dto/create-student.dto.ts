@@ -22,4 +22,8 @@ export class CreateStudentDto {
 
   @IsEnum(StudyYear)
   readonly studyYear: StudyYear;
+  @IsString()
+  readonly gender: string;
+  @IsString()
+  readonly subSection: string;
 }

@@ -11,7 +11,10 @@ export abstract class BaseService<Entity extends BaseEntity<Entity>> {
   constructor(protected readonly repo: Repository<Entity>) {}
 
   async findOne(id: any): Promise<Entity> {
-    const entity = await this.repo.findOne({ where: { id } });
+    const entity = await this.repo.findOne({
+      where: { id },
+      relations: ['teachers'],
+    });
     if (!entity) {
       throw new NotFoundException('this is not found');
     }

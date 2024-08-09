@@ -7,6 +7,7 @@ import { BaseService } from '../common/Base.service';
 import { CreateStudentWithTeachersDto } from './dto/CreateStudentwithTeacher.dto';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { Center } from 'src/center/center.entity';
+import { StudyYear } from './study-year.enum';
 
 @Injectable()
 export class StudentService extends BaseService<Student> {
@@ -120,4 +121,77 @@ export class StudentService extends BaseService<Student> {
   //     take: limit,
   //   });
   // }
+  async findOne(id?: number, phoneNumber?: string): Promise<Student> {
+    let student: Student | undefined;
+
+    if (id) {
+      student = await this.studentRepository.findOne({
+        where: { id },
+        relations: ['teachers'],
+      });
+    } else if (phoneNumber) {
+      student = await this.studentRepository.findOne({
+        where: { phoneNumber },
+        relations: ['teachers'],
+      });
+    }
+
+    if (!student) {
+      throw new NotFoundException('Student not found.');
+    }
+
+    return student;
+  }
+
+  async findStudentsByCustomQuery(
+    centerId: number,
+    teacherId?: number,
+    studyYear?: StudyYear,
+    gender?: string,
+    subSection?: string,
+    section?: string,
+  ): Promise<Student[]> {
+    // console.log(teacherId);
+    // const query = this.studentRepository
+    //   .createQueryBuilder('student')
+    //   .leftJoinAndSelect('student.teachers', 'teacher')
+    //   .where('student.centerId = :centerId', { centerId });
+    const center = await this.centerRepository.findOne({
+      where: { id: centerId },
+    });
+
+    if (teacherId) {
+      const teacher = await this.teacherRepository.findOne({
+        where: { id: teacherId },
+        relations: ['students'],
+      });
+      return teacher.students;
+    }
+    if (studyYear) {
+      return await this.studentRepository.find({
+        where: { studyYear: studyYear, center },
+      });
+    }
+    if (gender) {
+      return await this.studentRepository.find({
+        where: { gender: gender, center },
+      });
+    }
+    if (subSection) {
+      return await this.studentRepository.find({
+        where: { subSection: subSection, center },
+      });
+    }
+    if (section) {
+      return await this.studentRepository.find({
+        where: { section: section, center },
+      });
+    }
+
+    // if (students.length === 0) {
+    //   throw new NotFoundException('No students found for the given query.');
+    // }
+
+    // return students;
+  }
 }

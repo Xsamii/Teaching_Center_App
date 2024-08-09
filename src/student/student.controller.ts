@@ -14,6 +14,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Student } from './student.entity';
 import { CreateStudentWithTeachersDto } from './dto/CreateStudentwithTeacher.dto';
+import { StudyYear } from './study-year.enum';
 
 @Controller('students')
 export class StudentController {
@@ -40,6 +41,39 @@ export class StudentController {
       );
     }
     return this.studentService.searchStudent(id, phoneNumber);
+  }
+
+  @Get('find')
+  async findStudent(
+    @Query('id') id?: number,
+    @Query('phoneNumber') phoneNumber?: string,
+  ): Promise<Student> {
+    if (!id && !phoneNumber) {
+      throw new NotFoundException(
+        'Please provide either an id or a phone number to search.',
+      );
+    }
+
+    return await this.studentService.findOne(id, phoneNumber);
+  }
+
+  @Get('custom-query')
+  async findStudentsByCustomQuery(
+    @Query('centerId') centerId: number,
+    @Query('teacherId') teacherId?: number,
+    @Query('studyYear') studyYear?: StudyYear,
+    @Query('gender') gender?: string,
+    @Query('subSection') subSection?: string,
+    @Query('section') section?: string,
+  ): Promise<Student[]> {
+    return this.studentService.findStudentsByCustomQuery(
+      centerId,
+      teacherId,
+      studyYear,
+      gender,
+      subSection,
+      section,
+    );
   }
 
   // @Get('recent')
