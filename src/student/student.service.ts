@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Student } from './student.entity';
 import { Teacher } from '../teacher/teacher.entity';
 import { BaseService } from '../common/Base.service';
@@ -18,6 +18,7 @@ export class StudentService extends BaseService<Student> {
     private readonly teacherRepository: Repository<Teacher>,
     @InjectRepository(Center)
     private readonly centerRepository: Repository<Center>,
+    private readonly entityManager: EntityManager,
   ) {
     super(studentRepository);
   }
@@ -174,9 +175,14 @@ export class StudentService extends BaseService<Student> {
       });
     }
     if (gender) {
-      return await this.studentRepository.find({
-        where: { gender: gender, center },
-      });
+      const sql = `
+      SELECT * FROM student 
+      WHERE gender = $1 
+      AND center_id = $2;
+    `;
+
+      const results = await this.entityManager.query(sql, [gender, centerId]);
+      return results;
     }
     if (subSection) {
       return await this.studentRepository.find({
