@@ -151,6 +151,7 @@ export class StudentService extends BaseService<Student> {
     subSection?: string,
     section?: string,
   ): Promise<Student[]> {
+    console.log(gender);
     // console.log(teacherId);
     // const query = this.studentRepository
     //   .createQueryBuilder('student')
