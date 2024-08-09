@@ -178,7 +178,7 @@ export class StudentService extends BaseService<Student> {
       const sql = `
       SELECT * FROM student 
       WHERE gender = $1 
-      AND center_id = $2;
+      AND centerId = $2;
     `;
 
       const results = await this.entityManager.query(sql, [gender, centerId]);
