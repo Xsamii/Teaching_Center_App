@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, In } from 'typeorm';
 import { Student } from './student.entity';
 import { Teacher } from '../teacher/teacher.entity';
 import { BaseService } from '../common/Base.service';
@@ -111,6 +111,7 @@ export class StudentService extends BaseService<Student> {
       where: { id: centerId },
       relations: ['students'],
     });
+    console.log(center.students);
     if (!center) {
       throw new NotFoundException(`Center with ID ${centerId} not found`);
     }
@@ -200,5 +201,21 @@ export class StudentService extends BaseService<Student> {
     // }
 
     // return students;
+  }
+  async markStudentsAsPrinted(studentIds: number[]): Promise<void> {
+    const students = await this.studentRepository.find({
+      where: { id: In(studentIds) },
+    });
+    console.log(students);
+
+    if (students.length !== studentIds.length) {
+      throw new NotFoundException('Some students were not found.');
+    }
+
+    for (const student of students) {
+      student.printed = true;
+    }
+
+    await this.studentRepository.save(students);
   }
 }

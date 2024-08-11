@@ -8,6 +8,7 @@ import {
   Body,
   Query,
   NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -117,5 +118,9 @@ export class StudentController {
     return this.studentService.createStudentWithTeachers(
       createStudentWithTeachersDto,
     );
+  }
+  @Patch('print')
+  async markAsPrinted(@Body('ids') ids: number[]) {
+    await this.studentService.markStudentsAsPrinted(ids);
   }
 }
