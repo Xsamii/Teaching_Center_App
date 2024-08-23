@@ -1,8 +1,15 @@
-import { Entity, ManyToOne, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  ManyToOne,
+  Column,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { Student } from '../student/student.entity';
 import { Session } from '../session/session.entity';
 
 @Entity()
+@Unique(['student', 'session'])
 export class StudentSessions {
   @PrimaryGeneratedColumn('uuid')
   id: number;

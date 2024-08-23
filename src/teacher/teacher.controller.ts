@@ -58,7 +58,6 @@ export class TeacherController {
   async getTeachersByCenter(
     @Param('centerId') centerId: any,
   ): Promise<Teacher[]> {
-    console.log('ima here');
     return this.teacherService.findTeachersByCenter(centerId);
   }
 

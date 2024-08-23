@@ -8,11 +8,12 @@ import {
   NotFoundException,
   Delete,
 } from '@nestjs/common';
-import { SessionService } from './session.service';
+import { SessionService } from './session2.service';
 import { Session } from './session.entity';
 import { CreateSessionDto } from '../session/create-session.dto';
 import { EnrollStudentDto } from '../student_sessions/dto/enroll-student.dto';
 import { StudentSessions } from '../student_sessions/student_sessions.entity';
+// import { Student } from 'src/student/student.entity';
 
 @Controller('sessions')
 export class SessionController {
@@ -33,13 +34,13 @@ export class SessionController {
     return this.sessionService.getSessionStudents(sessionId);
   }
 
-  @Post(':sessionId/students/:studentId/attendance')
-  async markAttendance(
-    @Param('sessionId') sessionId: number,
-    @Param('studentId') studentId: number,
-  ): Promise<StudentSessions> {
-    return this.sessionService.markAttendance(sessionId, studentId);
-  }
+  // @Post(':sessionId/students/:studentId/attendance')
+  // async markAttendance(
+  //   @Param('sessionId') sessionId: number,
+  //   @Param('studentId') studentId: number,
+  // ): Promise<StudentSessions> {
+  //   // return this.sessionService.markAttendance(sessionId, studentId);
+  // }
 
   @Post()
   async createSession(
@@ -78,12 +79,11 @@ export class SessionController {
     @Query('sessionId') sessionId: number,
     @Query('studentId') studentId?: number,
     @Query('phoneNumber') phoneNumber?: string,
-  ): Promise<StudentSessions> {
-    console.log('iam here');
+  ) {
     if (!studentId && !phoneNumber) {
       throw new NotFoundException('Student ID or phone number is required');
     }
-    return this.sessionService.findStudentSession(
+    return this.sessionService.findStudentSessionWithPrice(
       sessionId,
       studentId,
       phoneNumber,

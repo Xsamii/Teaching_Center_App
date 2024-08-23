@@ -11,5 +11,5 @@ export class EnrollStudentDto {
 
   @IsOptional()
   @IsNumber()
-  customPrice?: number;
+  customPrice: number;
 }

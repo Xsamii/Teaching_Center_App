@@ -153,7 +153,7 @@ export class StudentService extends BaseService<Student> {
     subSection?: string,
     section?: string,
   ): Promise<Student[]> {
-    console.log(gender);
+    // console.log(gender);
     // console.log(teacherId);
     // const query = this.studentRepository
     //   .createQueryBuilder('student')
@@ -171,9 +171,18 @@ export class StudentService extends BaseService<Student> {
       return teacher.students;
     }
     if (studyYear) {
-      return await this.studentRepository.find({
-        where: { studyYear: studyYear, center },
-      });
+      const sql = `
+      SELECT * FROM student 
+      WHERE studyYear = ? 
+      AND centerId = ?;
+    `;
+
+      const results = await this.entityManager.query(sql, [
+        studyYear,
+        centerId,
+      ]);
+
+      return results;
     }
     if (gender) {
       const sql = `
@@ -206,7 +215,6 @@ export class StudentService extends BaseService<Student> {
     const students = await this.studentRepository.find({
       where: { id: In(studentIds) },
     });
-    console.log(students);
 
     if (students.length !== studentIds.length) {
       throw new NotFoundException('Some students were not found.');
