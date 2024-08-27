@@ -7,6 +7,12 @@ import {
 } from 'class-validator';
 import { StudyYear } from '../study-year.enum';
 
+// Define the type enum
+export enum StudentType {
+  Azhar = 'azhar',
+  Aam = 'aam',
+}
+
 export class CreateStudentDto {
   @IsString()
   readonly name: string;
@@ -22,8 +28,14 @@ export class CreateStudentDto {
 
   @IsEnum(StudyYear)
   readonly studyYear: StudyYear;
+
   @IsString()
   readonly gender: string;
+
   @IsString()
   readonly subSection: string;
+
+  // New type attribute
+  @IsEnum(StudentType)
+  readonly type: StudentType;
 }

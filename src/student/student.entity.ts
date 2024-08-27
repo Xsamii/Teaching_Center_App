@@ -59,4 +59,8 @@ export class Student {
 
   @OneToMany(() => Subscription, (subscription) => subscription.student)
   subscriptions: Subscription[]; // Added subscriptions relationship
+
+  // New type attribute
+  @Column()
+  type: string;
 }

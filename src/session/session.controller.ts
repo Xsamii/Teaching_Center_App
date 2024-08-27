@@ -89,6 +89,17 @@ export class SessionController {
       phoneNumber,
     );
   }
+  @Get(':sessionId/enrolled-students')
+  async getEnrolledStudents(@Param('sessionId') sessionId: number) {
+    const enrolledStudents =
+      await this.sessionService.getEnrolledStudents(sessionId);
+
+    if (!enrolledStudents) {
+      throw new NotFoundException(`Session with ID ${sessionId} not found`);
+    }
+
+    return enrolledStudents;
+  }
 
   @Delete(':id/student/:studId')
   async removeStudentFromSession(

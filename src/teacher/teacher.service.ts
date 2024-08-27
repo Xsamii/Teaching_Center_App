@@ -36,7 +36,6 @@ export class TeacherService extends BaseService<Teacher> {
     if (!center) {
       throw new NotFoundException(`Center with ID ${centerId} not found`);
     }
-    console.log('2', center);
     // const subject = await this.subjectRepository.findOne({
     //   where: { id: subjectId },
     // });

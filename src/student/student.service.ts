@@ -8,6 +8,7 @@ import { CreateStudentWithTeachersDto } from './dto/CreateStudentwithTeacher.dto
 import { CreateStudentDto } from './dto/create-student.dto';
 import { Center } from 'src/center/center.entity';
 import { StudyYear } from './study-year.enum';
+// import { StudentType } from './dto/create-student.dto'; // Importing the StudentType enum
 
 @Injectable()
 export class StudentService extends BaseService<Student> {
@@ -22,6 +23,7 @@ export class StudentService extends BaseService<Student> {
   ) {
     super(studentRepository);
   }
+
   async create(createStudentDto: CreateStudentDto): Promise<Student> {
     const { centerId, ...studentDetails } = createStudentDto;
 
@@ -31,7 +33,6 @@ export class StudentService extends BaseService<Student> {
     if (!center) {
       throw new NotFoundException('Center not found.');
     }
-    console.log('center', center);
 
     const student = this.studentRepository.create({
       ...studentDetails,
@@ -71,7 +72,7 @@ export class StudentService extends BaseService<Student> {
     if (teachers.length !== teacherIds.length) {
       throw new NotFoundException(`Some teachers not found`);
     }
-    console.log('teachers', teachers);
+
     const center = await this.centerRepository.findOne({
       where: { id: centerId },
     });
@@ -87,7 +88,6 @@ export class StudentService extends BaseService<Student> {
   }
 
   async searchStudent(id?: any, phoneNumber?: string): Promise<Student> {
-    // console.log(id, phoneNumber);
     let student: Student | undefined;
     if (id) {
       student = await this.studentRepository.findOne({ where: { id } });
@@ -102,7 +102,6 @@ export class StudentService extends BaseService<Student> {
         'Student not found with the provided identifier.',
       );
     }
-    // console.log('student', student);
     return student;
   }
 
@@ -111,18 +110,12 @@ export class StudentService extends BaseService<Student> {
       where: { id: centerId },
       relations: ['students'],
     });
-    console.log(center.students);
     if (!center) {
       throw new NotFoundException(`Center with ID ${centerId} not found`);
     }
     return center.students;
   }
-  // async findRecentStudents(limit: number = 100): Promise<Student[]> {
-  //   return this.studentRepository.find({
-  //     order: { createdAt: 'DESC' },
-  //     take: limit,
-  //   });
-  // }
+
   async findOne(id?: number, phoneNumber?: string): Promise<Student> {
     let student: Student | undefined;
 
@@ -152,65 +145,101 @@ export class StudentService extends BaseService<Student> {
     gender?: string,
     subSection?: string,
     section?: string,
+    removeTeacher?: number, // Added removeTeacher as a parameter
+    type?: string, // Added type as a parameter
   ): Promise<Student[]> {
-    // console.log(gender);
-    // console.log(teacherId);
-    // const query = this.studentRepository
-    //   .createQueryBuilder('student')
-    //   .leftJoinAndSelect('student.teachers', 'teacher')
-    //   .where('student.centerId = :centerId', { centerId });
-    const center = await this.centerRepository.findOne({
-      where: { id: centerId },
-    });
+    let students: Student[] = [];
 
-    if (teacherId) {
-      const teacher = await this.teacherRepository.findOne({
-        where: { id: teacherId },
-        relations: ['students'],
-      });
-      return teacher.students;
-    }
+    // Step 1: Fetch students based on other filters if they exist
     if (studyYear) {
       const sql = `
       SELECT * FROM student 
       WHERE studyYear = ? 
       AND centerId = ?;
-    `;
-
+      `;
       const results = await this.entityManager.query(sql, [
         studyYear,
         centerId,
       ]);
+      const resultIds = results.map((student) => student.id);
 
-      return results;
+      students = students.length
+        ? students.filter((student) => resultIds.includes(student.id))
+        : results;
     }
+
     if (gender) {
       const sql = `
-      SELECT * FROM student 
-      WHERE gender = ? 
-      AND centerId = ?;
-    `;
-
+        SELECT * FROM student
+        WHERE gender = ?
+        AND centerId = ?;
+        `;
       const results = await this.entityManager.query(sql, [gender, centerId]);
-      return results;
+      const resultIds = results.map((student) => student.id);
+
+      students = students.length
+        ? students.filter((student) => resultIds.includes(student.id))
+        : results;
     }
+
     if (subSection) {
-      return await this.studentRepository.find({
-        where: { subSection: subSection, center },
+      const results = await this.studentRepository.find({
+        where: { subSection: subSection, center: { id: centerId } },
       });
+      const resultIds = results.map((student) => student.id);
+
+      students = students.length
+        ? students.filter((student) => resultIds.includes(student.id))
+        : results;
     }
+
     if (section) {
-      return await this.studentRepository.find({
-        where: { section: section, center },
+      const results = await this.studentRepository.find({
+        where: { section: section, center: { id: centerId } },
       });
+      const resultIds = results.map((student) => student.id);
+
+      students = students.length
+        ? students.filter((student) => resultIds.includes(student.id))
+        : results;
     }
 
-    // if (students.length === 0) {
-    //   throw new NotFoundException('No students found for the given query.');
-    // }
+    // Step 2: Remove students associated with the specified teacher
+    if (removeTeacher) {
+      const removeTeacherEntity = await this.teacherRepository.findOne({
+        where: { id: removeTeacher },
+        relations: ['students'],
+      });
+      const studentsToRemoveIds =
+        removeTeacherEntity?.students.map((s) => s.id) || [];
+      students = students.filter(
+        (student) => !studentsToRemoveIds.includes(student.id),
+      );
+    }
 
-    // return students;
+    // Step 3: Apply teacher filter if specified (optional)
+    if (teacherId) {
+      console.log('hereee');
+      const teacher = await this.teacherRepository.findOne({
+        where: { id: teacherId },
+        relations: ['students'],
+      });
+      const teacherStudentIds = teacher?.students.map((s) => s.id) || [];
+      students = students.length
+        ? students.filter((student) => teacherStudentIds.includes(student.id))
+        : teacher.students;
+    }
+
+    // Step 4: Apply type filter if specified (optional)
+    if (type) {
+      students = students.length
+        ? students.filter((student) => student.type === type)
+        : await this.studentRepository.find({ where: { type: type } });
+    }
+
+    return students;
   }
+
   async markStudentsAsPrinted(studentIds: number[]): Promise<void> {
     const students = await this.studentRepository.find({
       where: { id: In(studentIds) },

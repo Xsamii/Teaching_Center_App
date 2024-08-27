@@ -2,9 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
+import { Between, Repository, EntityManager } from 'typeorm';
 import { Session } from './session.entity';
 import { Student } from '../student/student.entity';
 import { StudentSessions } from '../student_sessions/student_sessions.entity';
@@ -29,6 +30,8 @@ export class SessionService {
     private readonly studentTeacherRepo: Repository<StudentTeacher>,
     @InjectRepository(Subscription)
     private readonly subscriptionRepository: Repository<Subscription>,
+    @Inject(EntityManager)
+    private readonly entityManager: EntityManager,
   ) {}
 
   // Step 1: Create a session without enrolling students
@@ -413,6 +416,54 @@ export class SessionService {
       totalRevenue,
       totalSessions: sessions.length,
       sessions: sessionDetails,
+    };
+  }
+
+  //   async getEnrolledStudents(sessionId: number) {
+  //     const session = await this.sessionRepository.findOne({
+  //       where: { id: sessionId },
+  //       relations: ['students'],
+  //     });
+  //     console.log('session', session);
+  //     if (!session) {
+  //       throw new NotFoundException(`Session with ID ${sessionId} not found`);
+  //     }
+  //     console.log('hereeee');
+  //     const students = session.students;
+
+  //     return {
+  //       numberOfStudents: students.length,
+  //       students: students.map((student) => ({
+  //         id: student.id,
+  //         name: student.name,
+  //         phoneNumber: student.phoneNumber,
+  //       })),
+  //     };
+  //   }
+  async getEnrolledStudents(sessionId: number) {
+    const students = await this.entityManager.query(
+      `
+      SELECT 
+        s.id AS id,
+        s.name AS name,
+        s.phoneNumber,
+        ss.customPrice
+      FROM 
+        student s
+      INNER JOIN 
+        student_sessions ss ON s.id = ss.studentId
+      WHERE 
+        ss.sessionId = ?
+    
+      `,
+      [sessionId],
+    );
+
+    // const numberOfStudents = students.length;
+
+    return {
+      // numberOfStudents,
+      students,
     };
   }
 }
