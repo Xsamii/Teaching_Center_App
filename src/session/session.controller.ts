@@ -7,6 +7,7 @@ import {
   Query,
   NotFoundException,
   Delete,
+  Put,
 } from '@nestjs/common';
 import { SessionService } from './session2.service';
 import { Session } from './session.entity';
@@ -99,6 +100,10 @@ export class SessionController {
     }
 
     return enrolledStudents;
+  }
+  @Put('close/:id')
+  async closeSession(@Param('id') id: number) {
+    await this.sessionService.closeSession(id);
   }
 
   @Delete(':id/student/:studId')

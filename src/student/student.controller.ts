@@ -68,7 +68,10 @@ export class StudentController {
     @Query('section') section?: string,
     @Query('removeTeacher') removeTeacher?: number, // New query parameter for removing students of a specific teacher
     @Query('type') type?: string, // New query parameter for removing students of a specific teacher
+    @Query('secondLang') secondLang?: string,
   ): Promise<Student[]> {
+    // console.log(secondLang, query);
+
     // console.log('para', studyYear, 'para', teacherId);
     return this.studentService.findStudentsByCustomQuery(
       centerId,
@@ -79,6 +82,7 @@ export class StudentController {
       section,
       removeTeacher,
       type,
+      secondLang,
     );
   }
 

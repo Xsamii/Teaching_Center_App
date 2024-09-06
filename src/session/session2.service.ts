@@ -173,6 +173,7 @@ export class SessionService {
 
   async findAll() {
     const sessions: Session[] = await this.sessionRepository.find({
+      where: { state: 'open' },
       relations: ['teacher'],
     });
     const resp = sessions.map((s) => ({ ...s, teacherName: s.teacher.name }));
@@ -465,5 +466,11 @@ export class SessionService {
       // numberOfStudents,
       students,
     };
+  }
+  async closeSession(id: number) {
+    console.log('close', id);
+    const session = await this.sessionRepository.findOne({ where: { id: id } });
+    session.state = 'closed';
+    return this.sessionRepository.save(session);
   }
 }

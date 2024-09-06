@@ -147,6 +147,7 @@ export class StudentService extends BaseService<Student> {
     section?: string,
     removeTeacher?: number, // Added removeTeacher as a parameter
     type?: string, // Added type as a parameter
+    secondLang?: string,
   ): Promise<Student[]> {
     let students: Student[] = [];
 
@@ -235,6 +236,15 @@ export class StudentService extends BaseService<Student> {
       students = students.length
         ? students.filter((student) => student.type === type)
         : await this.studentRepository.find({ where: { type: type } });
+    }
+    // Step 5: Apply second lang filter if specified (optional)
+
+    if (secondLang) {
+      students = students.length
+        ? students.filter((student) => student.secondLang === secondLang)
+        : await this.studentRepository.find({
+            where: { secondLang: secondLang },
+          });
     }
 
     return students;

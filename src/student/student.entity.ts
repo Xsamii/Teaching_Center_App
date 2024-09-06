@@ -63,4 +63,6 @@ export class Student {
   // New type attribute
   @Column()
   type: string;
+  @Column()
+  secondLang: string;
 }
