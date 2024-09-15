@@ -7,7 +7,7 @@ import { BaseService } from '../common/Base.service';
 import { CreateStudentWithTeachersDto } from './dto/CreateStudentwithTeacher.dto';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { Center } from 'src/center/center.entity';
-import { StudyYear } from './study-year.enum';
+// import { StudyYear } from './study-year.enum';
 // import { StudentType } from './dto/create-student.dto'; // Importing the StudentType enum
 
 @Injectable()
@@ -26,6 +26,7 @@ export class StudentService extends BaseService<Student> {
 
   async create(createStudentDto: CreateStudentDto): Promise<Student> {
     const { centerId, ...studentDetails } = createStudentDto;
+    console.log('sttt', createStudentDto);
 
     const center = await this.centerRepository.findOne({
       where: { id: centerId },
@@ -141,7 +142,7 @@ export class StudentService extends BaseService<Student> {
   async findStudentsByCustomQuery(
     centerId: number,
     teacherId?: number,
-    studyYear?: StudyYear,
+    studyYear?: string,
     gender?: string,
     subSection?: string,
     section?: string,

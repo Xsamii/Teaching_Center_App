@@ -28,6 +28,16 @@ export class TeacherController {
   async findAll(): Promise<Teacher[]> {
     return await this.teacherService.findAll();
   }
+  @Get('custom-prices')
+  async getAllCustomPrices() {
+    return await this.teacherService.getAllCustomPrices();
+  }
+  @Delete('custom-price/:id')
+  async deleteCustomPrice(@Param('id') id: number) {
+    console.log('hereee', id);
+    await this.teacherService.deleteCustomPrice(id);
+    return { message: 'Custom price deleted successfully' };
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: any): Promise<Teacher> {

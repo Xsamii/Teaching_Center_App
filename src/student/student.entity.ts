@@ -9,7 +9,7 @@ import {
 import { Session } from '../session/session.entity';
 import { Center } from '../center/center.entity';
 import { Teacher } from 'src/teacher/teacher.entity';
-import { StudyYear } from './study-year.enum';
+// import { StudyYear } from './study-year.enum';
 import { StudentTeacher } from 'src/teacher/student-teacher.entity';
 import { Subscription } from '../subscription/subscription.entity';
 
@@ -39,11 +39,8 @@ export class Student {
   @ManyToMany(() => Teacher, (teacher) => teacher.students)
   teachers: Teacher[];
 
-  @Column({
-    type: 'enum',
-    enum: StudyYear,
-  })
-  studyYear: StudyYear;
+  @Column()
+  studyYear: string;
 
   @Column()
   gender: string;

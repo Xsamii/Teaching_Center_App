@@ -455,10 +455,10 @@ export class SessionService {
         student_sessions ss ON s.id = ss.studentId
       WHERE 
         ss.sessionId = ?
-    
       `,
       [sessionId],
     );
+    // console.log('ssss', students);
 
     // const numberOfStudents = students.length;
 

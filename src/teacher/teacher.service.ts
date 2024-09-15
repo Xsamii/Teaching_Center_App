@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { BaseService } from '../common/Base.service';
 import { Teacher } from './teacher.entity';
 import { Center } from 'src/center/center.entity';
@@ -161,5 +161,34 @@ export class TeacherService extends BaseService<Teacher> {
       'DELETE FROM teacher_students_student WHERE teacherId = ? AND studentId = ?',
       [teacherId, studentId],
     );
+  }
+  async getAllCustomPrices(): Promise<
+    { customPrice: number; studentName: string; teacherName: string }[]
+  > {
+    const studentTeachers = await this.studentTeacherRepository.find({
+      where: { customPrice: Not(IsNull()) }, // Only fetch records with customPrice
+      relations: ['student', 'teacher'], // Fetch related entities
+      select: ['customPrice', 'id'],
+    });
+
+    return studentTeachers.map((st) => ({
+      id: st.id,
+      customPrice: st.customPrice,
+      studentName: st.student.name,
+      teacherName: st.teacher.name,
+    }));
+  }
+  async deleteCustomPrice(studentTeacherId: number): Promise<void> {
+    const studentTeacher = await this.studentTeacherRepository.findOne({
+      where: { id: studentTeacherId },
+    });
+
+    if (!studentTeacher) {
+      throw new NotFoundException('StudentTeacher record not found');
+    }
+
+    // Set customPrice to null to "delete" it
+    studentTeacher.customPrice = null;
+    await this.studentTeacherRepository.save(studentTeacher);
   }
 }
