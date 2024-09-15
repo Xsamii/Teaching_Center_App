@@ -179,16 +179,11 @@ export class TeacherService extends BaseService<Teacher> {
     }));
   }
   async deleteCustomPrice(studentTeacherId: number): Promise<void> {
-    const studentTeacher = await this.studentTeacherRepository.findOne({
-      where: { id: studentTeacherId },
-    });
+    console.log('hreeeee');
+    const result = await this.studentTeacherRepository.delete(studentTeacherId);
 
-    if (!studentTeacher) {
+    if (result.affected === 0) {
       throw new NotFoundException('StudentTeacher record not found');
     }
-
-    // Set customPrice to null to "delete" it
-    studentTeacher.customPrice = null;
-    await this.studentTeacherRepository.save(studentTeacher);
   }
 }
