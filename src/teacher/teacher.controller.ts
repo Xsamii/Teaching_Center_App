@@ -28,9 +28,9 @@ export class TeacherController {
   async findAll(): Promise<Teacher[]> {
     return await this.teacherService.findAll();
   }
-  @Get('custom-prices')
-  async getAllCustomPrices() {
-    return await this.teacherService.getAllCustomPrices();
+  @Get('custom-prices/:centerId')
+  async getAllCustomPrices(@Param('centerId') centerId: any) {
+    return await this.teacherService.getAllCustomPrices(centerId);
   }
   @Delete('custom-price/:id')
   async deleteCustomPrice(@Param('id') id: number) {

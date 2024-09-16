@@ -29,6 +29,12 @@ export class SessionController {
   async getAllSessions(): Promise<Session[]> {
     return this.sessionService.findAll();
   }
+  @Get('/center/:centerId')
+  async getAllSessionsByCenter(
+    @Param('centerId') centerId: any,
+  ): Promise<Session[]> {
+    return this.sessionService.getAllSessionsByCenter(centerId);
+  }
 
   @Get(':sessionId/students')
   async getSessionStudents(@Param('sessionId') sessionId: number) {

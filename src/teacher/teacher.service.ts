@@ -162,11 +162,16 @@ export class TeacherService extends BaseService<Teacher> {
       [teacherId, studentId],
     );
   }
-  async getAllCustomPrices(): Promise<
+  async getAllCustomPrices(
+    centerId: any,
+  ): Promise<
     { customPrice: number; studentName: string; teacherName: string }[]
   > {
     const studentTeachers = await this.studentTeacherRepository.find({
-      where: { customPrice: Not(IsNull()) }, // Only fetch records with customPrice
+      where: {
+        customPrice: Not(IsNull()),
+        student: { center: { id: centerId } },
+      }, // Only fetch records with customPrice
       relations: ['student', 'teacher'], // Fetch related entities
       select: ['customPrice', 'id'],
     });

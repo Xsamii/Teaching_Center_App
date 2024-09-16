@@ -33,7 +33,11 @@ export class SessionService {
     @Inject(EntityManager)
     private readonly entityManager: EntityManager,
   ) {}
-
+  async getAllSessionsByCenter(centerId: any) {
+    return await this.sessionRepository.find({
+      where: { teacher: { center: { id: centerId } } },
+    });
+  }
   // Step 1: Create a session without enrolling students
   async createSession(createSessionDto: CreateSessionDto): Promise<Session> {
     const { teacherId, date, time, price, name } = createSessionDto;
@@ -55,12 +59,15 @@ export class SessionService {
   async enrollStudent(
     enrollStudentDto: EnrollStudentDto,
   ): Promise<StudentSessions> {
+    console.log('hhhhhhhhhhhhhhhhh', enrollStudentDto);
     const { studentId, sessionId, customPrice } = enrollStudentDto;
 
     const student = await this.validateStudent(studentId);
+    console.log('mmmmm');
     const session = await this.validateSession(sessionId);
 
     const isEnrolled = await this.isStudentEnrolled(studentId, sessionId);
+    // console.log('iiiiiiiii', isEnrolled);
     if (isEnrolled) {
       throw new BadRequestException(
         'Student is already enrolled in this session.',
@@ -75,6 +82,7 @@ export class SessionService {
       session,
       customPrice: customPrice,
     });
+    console.log('ssss', studentSession);
 
     return await this.studentSessionsRepository.save(studentSession);
   }
@@ -164,9 +172,14 @@ export class SessionService {
         teacher: { id: session.teacher.id },
       },
     });
+    // console.log('sssssssssssss', studentTeacher);
 
     // Step 3: Return the custom price if available, otherwise return the session's default price
-    return studentTeacher?.customPrice || session.price;
+    if (studentTeacher) {
+      return studentTeacher.customPrice;
+    } else {
+      return session.price;
+    }
   }
 
   // Other existing methods for session management...
