@@ -68,14 +68,12 @@ export class TeacherService extends BaseService<Teacher> {
   }
 
   async findTeachersByCenter(centerId: number): Promise<Teacher[]> {
-    const center = await this.cetnerRepo.findOne({
-      where: { id: centerId },
-      relations: ['teachers'],
+    const teachers = await this.teacherRepository.find({
+      where: { center: { id: centerId } },
+      relations: ['center', 'subject'],
     });
-    if (!center) {
-      throw new NotFoundException(`Center with ID ${centerId} not found`);
-    }
-    return center.teachers;
+    const resp = teachers.map((t) => ({ ...t, subjectName: t.subject.name }));
+    return resp;
   }
 
   async findAll() {

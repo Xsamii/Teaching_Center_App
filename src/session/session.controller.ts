@@ -24,16 +24,16 @@ export class SessionController {
   findByDate(@Query('date') date: string): Promise<Session[]> {
     return this.sessionService.findByDate(date);
   }
-
-  @Get()
-  async getAllSessions(): Promise<Session[]> {
-    return this.sessionService.findAll();
-  }
   @Get('/center/:centerId')
   async getAllSessionsByCenter(
     @Param('centerId') centerId: any,
   ): Promise<Session[]> {
+    console.log('iam here');
     return this.sessionService.getAllSessionsByCenter(centerId);
+  }
+  @Get()
+  async getAllSessions(): Promise<Session[]> {
+    return this.sessionService.findAll();
   }
 
   @Get(':sessionId/students')

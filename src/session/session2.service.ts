@@ -34,9 +34,14 @@ export class SessionService {
     private readonly entityManager: EntityManager,
   ) {}
   async getAllSessionsByCenter(centerId: any) {
-    return await this.sessionRepository.find({
+    // console.log('hereee ');
+    const sessions = await this.sessionRepository.find({
       where: { teacher: { center: { id: centerId } } },
+      relations: ['teacher'],
     });
+    const resp = sessions.map((s) => ({ ...s, teacherName: s.teacher.name }));
+    // console.log('resspppp', resp);
+    return resp;
   }
   // Step 1: Create a session without enrolling students
   async createSession(createSessionDto: CreateSessionDto): Promise<Session> {
@@ -59,7 +64,7 @@ export class SessionService {
   async enrollStudent(
     enrollStudentDto: EnrollStudentDto,
   ): Promise<StudentSessions> {
-    console.log('hhhhhhhhhhhhhhhhh', enrollStudentDto);
+    // console.log('hhhhhhhhhhhhhhhhh', enrollStudentDto);
     const { studentId, sessionId, customPrice } = enrollStudentDto;
 
     const student = await this.validateStudent(studentId);
