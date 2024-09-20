@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, In } from 'typeorm';
 import { Student } from './student.entity';
@@ -25,21 +29,39 @@ export class StudentService extends BaseService<Student> {
   }
 
   async create(createStudentDto: CreateStudentDto): Promise<Student> {
-    const { centerId, ...studentDetails } = createStudentDto;
-    console.log('sttt', createStudentDto);
+    const { centerId, phoneNumber, ...studentDetails } = createStudentDto;
 
+    // Retrieve the center from the repository
     const center = await this.centerRepository.findOne({
       where: { id: centerId },
     });
+
     if (!center) {
       throw new NotFoundException('Center not found.');
     }
 
+    // Check if a student with the same phone number exists in this center
+    const existingStudent = await this.studentRepository.findOne({
+      where: {
+        phoneNumber,
+        center: { id: centerId },
+      },
+    });
+
+    if (existingStudent) {
+      throw new ConflictException(
+        `A student with this phone number already exists in this center.`,
+      );
+    }
+
+    // Create a new student entity
     const student = this.studentRepository.create({
       ...studentDetails,
+      phoneNumber,
       center,
     });
 
+    // Save the new student to the repository
     return await this.studentRepository.save(student);
   }
 
@@ -67,43 +89,47 @@ export class StudentService extends BaseService<Student> {
   async createStudentWithTeachers(
     createStudentDto: CreateStudentWithTeachersDto,
   ): Promise<Student> {
-    const { centerId, teacherIds, ...studentDetails } = createStudentDto;
+    const { centerId, teacherIds, phoneNumber, ...studentDetails } =
+      createStudentDto;
 
+    // Fetch the teachers based on the provided teacherIds
     const teachers = await this.teacherRepository.findByIds(teacherIds);
     if (teachers.length !== teacherIds.length) {
       throw new NotFoundException(`Some teachers not found`);
     }
 
+    // Fetch the center based on the provided centerId
     const center = await this.centerRepository.findOne({
       where: { id: centerId },
     });
     if (!center) {
       throw new NotFoundException('Center not found.');
     }
+
+    // Check if a student with the same phone number exists in this center
+    const existingStudent = await this.studentRepository.findOne({
+      where: {
+        phoneNumber,
+        center: { id: centerId },
+      },
+    });
+
+    if (existingStudent) {
+      throw new ConflictException(
+        `A student with this phone number already exists in this center.`,
+      );
+    }
+
+    // Create a new student entity with teachers and center details
     const student = this.studentRepository.create({
       ...studentDetails,
       teachers,
+      phoneNumber,
       center,
     });
+
+    // Save the new student to the repository
     return this.studentRepository.save(student);
-  }
-
-  async searchStudent(id?: any, phoneNumber?: string): Promise<Student> {
-    let student: Student | undefined;
-    if (id) {
-      student = await this.studentRepository.findOne({ where: { id } });
-    } else if (phoneNumber) {
-      student = await this.studentRepository.findOne({
-        where: { phoneNumber },
-      });
-    }
-
-    if (!student) {
-      throw new NotFoundException(
-        'Student not found with the provided identifier.',
-      );
-    }
-    return student;
   }
 
   async findAllStudentsByCenter(centerId: number): Promise<Student[]> {
