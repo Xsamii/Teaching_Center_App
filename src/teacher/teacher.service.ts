@@ -102,6 +102,43 @@ export class TeacherService extends BaseService<Teacher> {
     teacher.students = [...(teacher.students || []), student];
     await this.teacherRepository.save(teacher);
   }
+
+  async addStudentToMultipleTeachers(
+    studentId: number,
+    teacherIds: number[],
+  ): Promise<void> {
+    // Find the student
+    const student = await this.studentRepository.findOne({
+      where: { id: studentId },
+    });
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${studentId} not found`);
+    }
+
+    // Loop through the teacher IDs and add the student to each teacher
+    for (const teacherId of teacherIds) {
+      const teacher = await this.teacherRepository.findOne({
+        where: { id: teacherId },
+        relations: ['students'],
+      });
+
+      if (!teacher) {
+        throw new NotFoundException(`Teacher with ID ${teacherId} not found`);
+      }
+
+      // Check if the student is already assigned to this teacher
+      if (
+        !teacher.students.find(
+          (existingStudent) => existingStudent.id === studentId,
+        )
+      ) {
+        teacher.students.push(student);
+        await this.teacherRepository.save(teacher); // Save changes to the teacher
+      }
+    }
+  }
+
   async addCustomPrice(
     createStudentTeacherDto: CreateStudentTeacherDto,
   ): Promise<StudentTeacher> {

@@ -70,6 +70,15 @@ export class TeacherController {
   ): Promise<Teacher[]> {
     return this.teacherService.findTeachersByCenter(centerId);
   }
+  @Post('add-student')
+  async addStudentToMultipleTeachers(
+    @Body() addStudentDto: { studentId: number; teacherIds: number[] },
+  ) {
+    return this.teacherService.addStudentToMultipleTeachers(
+      addStudentDto.studentId,
+      addStudentDto.teacherIds,
+    );
+  }
 
   @Post(':teacherId/add-student')
   async addStudentToTeacher(

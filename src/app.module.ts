@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubjectModule } from './subject/subject.module';
 import { CenterModule } from './center/center.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     SubjectModule,
     CenterModule,
     SubscriptionModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
   providers: [AppService],

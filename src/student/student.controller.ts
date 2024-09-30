@@ -41,9 +41,8 @@ export class StudentController {
         'Must provide either an id or phoneNumber to search',
       );
     }
-    return this.studentService.searchStudent(id, phoneNumber);
+    return this.studentService.findOne(id, phoneNumber);
   }
-
   @Get('find')
   async findStudent(
     @Query('id') id?: number,
